@@ -60,6 +60,7 @@ defmodule PhoenixSwagger.Mixfile do
       {:plug, "~> 1.4"},
       {:ex_doc, "~> 0.18", only: :dev, runtime: false},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
+      {:recase, "~> 0.5"}
     ]
   end
 
