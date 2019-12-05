@@ -223,7 +223,9 @@ defmodule PhoenixSwagger.Schema do
 
     body =
       exprs
-      |> Enum.map(fn {name, line, args} -> {:property, line, [name | args]} end)
+      |> Enum.map(fn {name, line, args} ->
+         {:property, line, [resolve_name_override(name, args) | delete_name_override_config(args)]}
+      end)
       |> Enum.reduce(model, fn expr, acc ->
            quote do unquote(acc) |> unquote(expr) end
          end)
@@ -234,6 +236,32 @@ defmodule PhoenixSwagger.Schema do
         unquote(body)
       end).()
     end
+  end
+
+  defp resolve_name_override(property_name, config) do
+    Enum.reduce(config, property_name, fn element, acc ->
+      if is_list(element) do
+        case Keyword.get(element, :name) do
+          nil -> acc
+          overwritten_name -> overwritten_name
+        end
+      else
+        acc
+      end
+    end)
+  end
+
+  defp delete_name_override_config(config) do
+    Enum.reduce(config, [], fn element, acc ->
+      if is_list(element) do
+        case Keyword.get(element, :name) do
+          nil -> acc ++ [element]
+          _ -> acc ++ [Keyword.delete(element, :name)]
+        end
+      else
+        acc ++ [element]
+      end
+    end)
   end
 
   @doc """
