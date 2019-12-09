@@ -239,7 +239,7 @@ defmodule PhoenixSwagger do
     Application.get_env(:phoenix_swagger, :json_library, Poison)
   end
 
-  def json_key_case do
+  def json_key_case() do
     Application.get_env(:phoenix_swagger, :json_key_format, :snake_case)
   end
 
@@ -255,7 +255,6 @@ defmodule PhoenixSwagger do
     |> Enum.map(fn {k,v} -> {to_string(k), to_json(v)} end)
     |> Enum.filter(fn {_, :null} -> false; _ -> true end)
     |> Enum.into(%{})
-    |> to_requested_case(json_key_case)
   end
   def to_json(value) when is_list(value) do
     Enum.map(value, &to_json/1)
@@ -268,8 +267,8 @@ defmodule PhoenixSwagger do
   def to_json(value) do value end
 
 
-  def to_requested_case(v, json_key_case) do
-      case json_key_case do
+  def to_requested_case(v) do
+      case json_key_case() do
         :camel_case ->
           FormatHelper.camelize(v)
         :kebab_case ->

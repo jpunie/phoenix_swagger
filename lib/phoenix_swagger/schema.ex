@@ -179,13 +179,14 @@ defmodule PhoenixSwagger.Schema do
     property(model, name, %Schema{type: type}, description, opts)
   end
   def property(model = %Schema{type: :object}, name, type = %Schema{}, description, opts) do
+    cased_name = PhoenixSwagger.to_requested_case(name)
     {required?, opts} = Keyword.pop(opts, :required)
     {nullable?, opts} = Keyword.pop(opts, :nullable)
     property_schema = struct!(type, [description: type.description || description] ++ opts)
     property_schema = if nullable?, do: %{property_schema | :'x-nullable' => true}, else: property_schema
-    properties = (model.properties || %{}) |> Map.put(name, property_schema)
+    properties = (model.properties || %{}) |> Map.put(cased_name, property_schema)
     model = %{model | properties: properties}
-    if required?, do: required(model, name), else: model
+    if required?, do: required(model, cased_name), else: model
   end
 
   @doc """
